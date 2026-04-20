@@ -1,0 +1,246 @@
+﻿@page "/productos"
+@rendermode InteractiveServer
+
+<div class="container">
+    <h2 class="mt-4">Productos</h2>
+
+    @if (!string.IsNullOrEmpty(_mensaje))
+    {
+        <div class="alert alert-danger mt-3">
+            @_mensaje
+        </div>
+    }
+
+   
+    <div class="d-flex align-items-center justify-content-start m-2 gap-2">
+        <label class="w-25">Inventario:</label>
+        <input class="form-control w-75" type="number" @bind="_numInventario" />
+    </div>
+
+    <div class="d-flex align-items-center justify-content-start m-2 gap-2">
+        <label class="w-25">Nombre:</label>
+        <input class="form-control w-75" type="text" @bind="_nombreProducto" />
+    </div>
+
+    <div class="d-flex align-items-center justify-content-start m-2 gap-2">
+        <label class="w-25">Departamento</label>
+        <div>
+            <!-- Aquí de plano no sabía como, lo saque de internet pero se como funciona 😓-->
+            <InputRadioGroup @bind-Value="_departamento">
+                <label><InputRadio Value=@("Frutas") /> Frutas</label>
+                <label><InputRadio Value=@("Verduras") /> Verduras</label>
+                <label><InputRadio Value=@("Lácteos") /> Lácteos</label>
+            </InputRadioGroup>
+        </div>
+    </div>
+
+    
+    @if (!_editando)
+    {
+        <button class="btn btn-primary mt-2" @onclick="Guardar">Guardar</button>
+    }
+    else
+    {
+        <button class="btn btn-success mt-2" @onclick="ConfirmarEdicion">Actualizar</button>
+        <button class="btn btn-secondary mt-2 ms-2" @onclick="CancelarEdicion">Cancelar</button>
+    }
+
+  
+    @if (!_listaYExistencias)
+    {
+        <button class="btn btn-secondary mt-2" @onclick="CambiarVista">Existencias</button>
+    }
+    else
+    {
+        <button class="btn btn-success mt-2" @onclick="CambiarVista">Listas</button>
+    }
+
+
+ 
+    @if(!_listaYExistencias)
+    {
+        <div class="mt-3">
+            <h3>Lista de productos</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Inventario</th>
+                        <th>Nombre</th>
+                        <th>Departamento</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in _productos)
+                    {
+                        <tr>
+                            <td>@product.NumInventario</td>
+                            <td>@product.Nombre</td>
+                            <td>@product.Departamento</td>
+                            <td>
+                                <button class="btn btn-sm btn-danger" @onclick="() => Eliminar(product.NumInventario)">✖</button>
+
+                                <button class="btn btn-sm btn-info ms-1" @onclick="() => Editar(product.NumInventario)">✎</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="mt-3">
+            <h3>Existencias por departamento</h3>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Frutas</th>
+                        <th>Verduras</th>
+                        <th>Lácteos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@TotalFrutas</td>
+                        <td>@TotalVerduras</td>
+                        <td>@TotalLacteos</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private int _numInventario = 0;
+    private string _nombreProducto = "";
+    private string _departamento = "";
+    private string _mensaje = "";
+    private bool _listaYExistencias = false; // false muestra las listas (muestra botón existencias) y true para existencias (el btn muestra Lista)
+
+    // Cargar cuento hay
+    private int TotalFrutas => _productos.Count(p => p.Departamento == "Frutas");
+    private int TotalVerduras => _productos.Count(p => p.Departamento == "Verduras");
+    private int TotalLacteos => _productos.Count(p => p.Departamento == "Lácteos");
+
+    private bool _editando = false;
+    private int _idEditando = 0;
+
+    private List<Producto> _productos = new();
+
+    // Guardar
+    private void Guardar()
+    {
+        if (!string.IsNullOrWhiteSpace(_nombreProducto) || !string.IsNullOrWhiteSpace(_departamento))
+        {
+            bool existe = _productos.Any(p => p.NumInventario == _numInventario);
+
+            if (!existe)
+            {
+                _productos.Add(new Producto
+                {
+                    NumInventario = _numInventario,
+                    Nombre = _nombreProducto,
+                    Departamento = _departamento
+                });
+
+                LimpiarFormulario();
+                _mensaje = "";
+            }
+            else
+            {
+                _mensaje = "El número de inventario ya existe";
+            }
+        } else
+        {
+            _mensaje = "Asegurate de completar todos los campos y marcar un departamento";
+        }
+    }
+
+    // Editar
+    private void Editar(int numInventario)
+    {
+        var producto = _productos.FirstOrDefault(p => p.NumInventario == numInventario);
+
+        if (producto != null)
+        {
+            _editando = true;
+            _idEditando = producto.NumInventario;
+
+            _numInventario = producto.NumInventario;
+            _nombreProducto = producto.Nombre;
+            _departamento = producto.Departamento;
+        }
+    }
+
+    // Confirmar
+    private void ConfirmarEdicion()
+    {
+        var producto = _productos.FirstOrDefault(p => p.NumInventario == _idEditando);
+
+        if (producto != null)
+        {
+            bool existe = _productos.Any(p =>
+                p.NumInventario == _numInventario &&
+                p.NumInventario != _idEditando);
+
+            if (!existe)
+            {
+                producto.NumInventario = _numInventario;
+                producto.Nombre = _nombreProducto;
+                producto.Departamento = _departamento;
+
+                LimpiarFormulario();
+                _mensaje = "";
+            }
+            else
+            {
+                _mensaje = "El número de inventario ya existe. Debe ser unico";
+            }
+        }
+    }
+
+    // Cancelar
+    private void CancelarEdicion()
+    {
+        LimpiarFormulario();
+        _mensaje = "";
+    }
+
+    // Eliminar 
+    private void Eliminar(int numInventario)
+    {
+        var producto = _productos.FirstOrDefault(p => p.NumInventario == numInventario);
+
+        if (producto != null)
+        {
+            _productos.Remove(producto);
+        }
+    }
+
+    // Para ahorrar tiempo  y no andar repiendo
+    private void LimpiarFormulario()
+    {
+        _numInventario = 0;
+        _nombreProducto = "";
+        _departamento = "";
+
+        _editando = false;
+        _idEditando = 0;
+    }
+
+    // Existencias y lista
+    private void CambiarVista()
+    {
+        _listaYExistencias = !_listaYExistencias;
+    }
+
+    public class Producto
+    {
+        public int NumInventario { get; set; }
+        public string Nombre { get; set; }
+        public string Departamento { get; set; }
+    }
+}
