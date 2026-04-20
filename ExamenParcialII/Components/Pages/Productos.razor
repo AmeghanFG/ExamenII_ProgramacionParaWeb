@@ -35,25 +35,29 @@
     </div>
 
     
-    @if (!_editando)
-    {
-        <button class="btn btn-primary mt-2" @onclick="Guardar">Guardar</button>
-    }
-    else
-    {
-        <button class="btn btn-success mt-2" @onclick="ConfirmarEdicion">Actualizar</button>
-        <button class="btn btn-secondary mt-2 ms-2" @onclick="CancelarEdicion">Cancelar</button>
-    }
+    <div>
+        @if (!_editando)
+        {
+            <button class="btn btn-primary mt-2" @onclick="Guardar">Guardar</button>
+        }
+        else
+        {
+            <button class="btn btn-success mt-2" @onclick="ConfirmarEdicion">Actualizar</button>
+            <button class="btn btn-secondary mt-2 ms-2" @onclick="CancelarEdicion">Cancelar</button>
+        }
+    </div>
 
   
-    @if (!_listaYExistencias)
-    {
-        <button class="btn btn-secondary mt-2" @onclick="CambiarVista">Existencias</button>
-    }
-    else
-    {
-        <button class="btn btn-success mt-2" @onclick="CambiarVista">Listas</button>
-    }
+    <div>
+        @if (!_listaYExistencias)
+        {
+            <button class="btn btn-secondary mt-2" @onclick="CambiarVista">Existencias</button>
+        }
+        else
+        {
+            <button class="btn btn-secondary mt-2" @onclick="CambiarVista">Listas</button>
+        }
+    </div>
 
 
  
@@ -133,7 +137,7 @@
     // Guardar
     private void Guardar()
     {
-        if (!string.IsNullOrWhiteSpace(_nombreProducto) || !string.IsNullOrWhiteSpace(_departamento))
+        if (!string.IsNullOrWhiteSpace(_nombreProducto) && !string.IsNullOrWhiteSpace(_departamento))
         {
             bool existe = _productos.Any(p => p.NumInventario == _numInventario);
 

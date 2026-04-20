@@ -1,1 +1,27 @@
-Logre desarrollar 
+Lo que se logro desarrollar
+ 
+> Logre desarrollar la interfaz casi en su totalidad
+	Notas: solo no pude hacer que las tablas me salieran 100% igual en cuanto estilo y el botón existencias me quedo al lado de guardar (luego lo corregí luego de la clase)
+
+> Se logró poner los radio buttons y todos las demás entradas necesarias
+
+> Se logró guardar los datos en una colección del tipo de dato producto y también se pudieron mostrar en una tabla
+	Nota: Use clases por que no se me ocurria otra forma de guardar productos en la lista que tuvieran asociados más de un valor, no sé si se enseño en alguna clase que no estuve
+
+> El mensaje de error también se muestra cuando es pertienente para válidar, cumple con la validación de no número de inventario repetido
+	Notas: En la función Guardar() se busca si ya hay un número de inventario igual al que se quiere guardar con "bool existe = _productos.Any(p => p.NumInventario == _numInventario);"
+	El mensaje de quita cuando se agrega a la colección el producto
+
+> Editar (precargando los valores) y eliminar también se realizarón con Editar y Eliminar
+
+> Botón de actualizar (ConfirmarEdicion) y cancelar (CancelarEdicion) también se lograron
+	Notas: A diferencia de las tareas donde solo le pasaba la string y con eso buscaba, se tuvo que usar "var producto = _productos.FirstOrDefault(p => p.NumInventario == numInventario);" para encontrar el producto, ya que permite encontrar por una condición el objeto que necesito aunque supongo que FindIndex también hubiera servido
+
+> También cambiar entre el btn "Existencias" y "Lista" se logró, en lista solo era usar Count
+	Nota: Así se obtienen las existencias por departamento: private int TotalFrutas => _productos.Count(p => p.Departamento == "Frutas");
+    private int TotalVerduras => _productos.Count(p => p.Departamento == "Verduras");
+    private int TotalLacteos => _productos.Count(p => p.Departamento == "Lácteos");
+	Nota: Las tablas cambian por medio de una varible como tipo "bandera", donde falso muestra uno y true otro, con if mostrando una tabla u otra dependiendo el valor bool de "_listaYExistencias"
+
+
+
